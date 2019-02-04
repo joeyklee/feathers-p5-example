@@ -35,7 +35,6 @@ function draw(){
 
 
 class MyFeelings {
-
     /**
      * 
     // anxiety: 5

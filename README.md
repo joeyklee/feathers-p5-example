@@ -1,5 +1,7 @@
 # feathers-p5-example
 
+![](assets/images/ss-admin.png)
+
 > In this example we setup a feathersjs app that does the following:
 
 1. adds p5.js to the public/index.html file
@@ -22,13 +24,38 @@ What concepts we need to think about:
 
 ## Setup
 
-### Install homebrew
+#### install the homebrew package manager for mac
+open up your terminal. Copy and paste the following and press enter:
+
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
 
 
-### Install nodejs
+#### install Node.js using homebrew - a server side programming language/environment
+After that finishes installing (you may be prompted to install things like XCode in the process), then copy and paste the following:
 
+```
+brew install node
+```
 
 ### Install Mongodb
+see: https://treehouse.github.io/installation-guides/mac/mongo-mac.html
+
+```sh
+brew install mongodb
+```
+
+make a data folder where your mongodb will live
+```sh
+mkdir -p /data/db
+```
+
+make sure you have the right permissions
+```sh
+sudo chown -R `id -un` /data/db
+# Enter your password
+```
 
 
 ### Run Mongodb
@@ -68,26 +95,24 @@ feathers generate app
 
 ### include p5js in the the index.html file
 
-**screenshot here**
-
-add in a `div` to specifically target your canvas to that DOM element
-
+add your p5.js library and a `index.js` file 
 in public/index.html
 ```
-<html>
-...
-
-<div id="myCanvas"></div>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+<script src="index.js"></script>
 ```
 
-### add some boilerplate code to your p5 sketch.js 
+
+
+### add some boilerplate code to your p5 index.js 
 
 Just to check if things are working, add some P5 code in.
 
 ```js
 function setup(){
-    createCanvas(400, 400).parent("#myCanvas");
+    createCanvas(400, 400)
 
 }
 
@@ -280,13 +305,141 @@ Second: let's create a page to submit our data feelings.
 
 ### Frontend 1: Our data feelings page
 
+![sketch drawn illustrating the browse page](assets/images/sketch-browse.png)
+
+We will first work on the visualization page that allows us to see our data feelings. 
+
+To do this we will add some html to our `public/index.html` as well as our `public/index.js` file.
+
+In the `public/index.html` you'll see a fairly straightforward html file with some elements and css commands. Here we specifically we use [CSS Grid](https://www.w3schools.com/css/css_grid.asp) which is a modern CSS syntax for making grids for the web. There's an excellent post on the [Times.nytimes.com blog about CSS Grid](https://open.nytimes.com/css-grid-for-designers-f74a883b98f5). 
+
+The most significant part of our data feelings page css is here:
+
+```css
+.grid-container {
+    display: grid;
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+    grid-template-columns: repeat(auto-fill, 172px);
+    padding-bottom:60px;
+  }
+```
+
+the property `grid-template-columns: repeat(auto-fill, 172px);` reads as: 
+> create a column that is 172 pixels wide and fill the column until the end of the page, then start again on the next row.
+
+In the `public/index.js` file we've got some more stuff to unpack. Let's break down the important bits:
+
+```js
+function preload(){
+    // request your data using the loadJSON function which makes a GET request to he URL provided
+    dataFeelings =  loadJSON("/feelings?$limit=false");
+}
+```
+
+Here, we are making a GET request to our feelings database with a query parameter `$limit=false` so that our feathersjs knows to give us all the data rather than splitting it up into paginated chunks. After preload runs, we will have our data to work with in p5. 
 
 
+How do we split our visualization into many canvases rendering our data across the page? We use the [p5 instance mode](https://github.com/processing/p5.js/wiki/Global-and-instance-mode) to achieve this. In our `index.js` file, you'll see that we've got a class called `MyFeelings` and a `render()` function that has some funky stuff in there. What the p5 instance mode allows us to do is create as many instances of p5 sketches on a page and target specific dom elements in which to add these sketches. 
 
-### Frontend 2: Our data submission page
+```js
+class MyFeelings {
+  ...
+
+  render(sketch){
+      ...
+
+      sketch.setup = function(){
+
+      }
+      sketch.draw = function(){
+          
+      }
+  }
+
+  ...
+}
+
+```
+
+In render, we put all of the logic for how to generate our data visuals! SO EXCITING. This is where you'll have the opportunity to get create and start iterating on design considerations that make for thoughtful and meaningful visual encodings.
+
+Here's an example of simple example of what my data feelings look like:
+
+![p5 sketches of my data feelings](assets/images/ss-browse.png)
+
+You might imagine that as you collect more data and as you perhaps change the type of data you collect what kinds of visual feedback might be interesting or important for you. I encourage you to try different types of things here. 
+
+Now let's build our admin interface
+
+### Frontend 2: Our data admin console
+![sketch drawn illustrating the admin interface](assets/images/sketch-admin.png)
+
+Now we will make a page that gives us a visaul interface that allows us to submit new data to our data feelings page. You could spend the rest of your life making `curl` requests, but hey! we're designers and we like interfaces. Also you can imagine then we can start adding data on other devices like our mobile phones ;) 
+
+Now take a peek into `public/admin/index.html`:
+
+You'll see again more html markup and some additional CSS. The most notable and important feature is the html `form` element. The form element has some notable characteristics.
+
+The form has:
+- an ID that will allow us to select that element with javascript later on 
+- an `action` that tells the form where to submit
+- a `method` that specifies what kind of request will be made on `submit`
+- we will attach an event listener on this form using p5.js to handle how or data gets sent to the server.
+- when the `input type=submit` is clicked, it will trigger the form submission.
+
+```html
+<form id="moodForm" action="/feelings" method="post">
+        <fieldset>
+          <legend>mood</legend>
+          <input type="text" id="mood-input" name="mood" placeholder="e.g. happy">
+        </fieldset>
+        ...
+
+        <input id="submit-input" type="submit" value="Submit! 🚀">
+</form>
+
+```
+
+Now you may be wondering, why should I write all this markup if I can just make those elements in p5? Well you're welcome to do this, but it can be easier to visualize how things are getting laid out when you write the markup out like this.
+
+Now, let's look at `public/admin/index.js`
+
+The more important feature here is how we handle the data submission in the form. When the form is submitted, this will trigger this event callback function. In javascript there is an object called FormData that makes it easier for us to pull out all the set values of a form much more easily. You can see that at the end of the `handleSubmit()` function that we call `httpPost()` which is a p5 function for delivering a POST request with some JSON data. When the POST has been made a callback function called `finished()` is called to redirect us to our super cool visualizaiton page. 
+
+```js
+// handleSubmit is the callback function for the form submission
+function handleSubmit(e){
+    e.preventDefault();
+    console.log("form submitted!")
+
+    // since we're working with an html form, we need to be able to retrieve the values from the  form
+    // we do so using the form.get(nameOftheInput);
+    const myForm = new FormData(e.currentTarget);
+    const payload = {
+        anxiety: myForm.get('anxiety'),
+        contentment: myForm.get('contentment'),
+        fitness: myForm.get('fitness'),
+        mood: myForm.get('mood'),
+        productivity: myForm.get('productivity'),
+        stress: myForm.get('stress')
+    }
+    // https://github.com/shiffman/itp-networked-media/wiki/GET,-POST-with-p5
+    httpPost("/feelings", payload, finished)
+}
+```
 
 
+My submission form looks pretty basic like this: 
 
+![Image of simple admin page to submit data to the feelings database](assets/images/ss-admin.png)
+
+
+WOW! Try submitting a few data feelings and see what starts to get generated in the browse page. The idea is that with some thoughtful visual encodings and with a larger dataset you'll start to be able to look back into time and to use these visuals to guide you in your reflection about a specific time or place or moment in your life. 
+
+## Checkpoint #3
+
+Take some time to revel in the glory that you've just made a full blown web application with a database and all. It isn't deloyed yet to the web and we haven't defined our authentication methods, but we will add that on top of our application soon. For now, take some time to think about what might be something you'd like to track this week and how you might try to attach some meaningful or intriguing visuals to those data. 
 
 
 
