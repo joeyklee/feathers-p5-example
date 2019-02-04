@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title>Featherjs P5 Example</title>
+    <style>
+      *{
+        box-sizing:border-box;
+      }
+
+      body,html{
+        width:100%;
+        max-width:1000px;
+        height:100%;
+        padding: 10px;
+        font-family: 'Monaco', Helvetica, sans-serif;
+      }
+
+      .grid-container {
+          display: grid;
+          grid-column-gap: 10px;
+          grid-row-gap: 10px;
+          grid-template-columns: repeat(auto-fill, 172px);
+          padding-bottom:60px;
+        }
+
+      .grid-item{
+        border: 2px solid black;
+        padding:4px;
+      }
+
+      a{
+        color:black;
+        text-decoration: none;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <header>
+        <h1>My Data Feelings <small><a href="/admin">⚙︎</a></small></h1>
+        <p>This is a series of daily visuals generated from my data feelings </p>
+        
+    </header>
+    <main class="grid-container" id="vis-grid">
+      <!-- all of our sketches will be added here -->
+    </main>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+  <script src="index.js"></script>
+</html>
