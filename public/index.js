@@ -1,54 +1,53 @@
-
-const loginHTML = `
-<main class="login container">
-    <h1 class="heading">Log in or signup</h1>
-    <form class="form">
-        <fieldset>
-          <input class="block" type="email" name="email" placeholder="email">
-        </fieldset>
-
-        <fieldset>
-          <input class="block" type="password" name="password" placeholder="password">
-        </fieldset>
-
-        <button type="button" id="login" class="">
-          Log in
-        </button>
-
-        <button type="button" id="signup" class="">
-          Sign up and log in
-        </button>
-      </form>
-    </div>
-
-</main>
-`
-
-const visHTML = `
-<main>
-    <header>
-        <h1>My Data Feelings <small><a href="/admin">⚙︎</a></small><small id="logout" style="font-size:12px; margin-left:20px; cursor:pointer">logout</small></h1>
-        <p>This is a series of daily visuals generated from my data feelings </p>
-        
-    </header>
-      <!-- all of our sketches will be added here -->
-      <section class="grid-container" id="vis-grid"></section>
-</main>
-`
+const views = new Views();
 
 
+function setup(){
+    noCanvas();
+    noLoop()
+}
 
 const showLogin = function(error){
     if(document.querySelectorAll('.login').length) {
         document.querySelector('.heading').insertAdjacentHTML('beforeend', `<p>There was an error: ${error.message}</p>`);
     } else {
-    document.getElementById('app').innerHTML = loginHTML;
+    document.getElementById('app').innerHTML = views.loginHTML;
     }
 }
 
+const submitFeelings = async function(e){
+    try {
+        e.preventDefault();
+        console.log("submitted!")
+        const myForm = new FormData(document.querySelector("#moodForm"));
+        const payload = {
+            anxiety: myForm.get('anxiety'),
+            contentment: myForm.get('contentment'),
+            fitness: myForm.get('fitness'),
+            mood: myForm.get('mood'),
+            productivity: myForm.get('productivity'),
+            stress: myForm.get('stress')
+        }
+        await client.authenticate();
+        let newData = await feelings.create(payload);
+        await showViz();
+
+    } catch(error){
+
+    }
+}
+
+
+const showAdmin = async function(){
+    document.getElementById('app').innerHTML = views.adminHTML;
+
+    moodForm.addEventListener('submit', submitFeelings)
+
+}
+
+
 // Shows the chat page
 const showViz = async function() {
-    document.getElementById('app').innerHTML = visHTML;
+    document.getElementById('app').innerHTML = views.visHTML;
 
     let dataFeelings = await client.service('feelings').find({
       query: {
@@ -78,7 +77,7 @@ const showViz = async function() {
     
   };
 
-  // Retrieve email/password object from the login/signup page
+// Retrieve email/password object from the login/signup page
 const getCredentials = () => {
     const user = {
       email: document.querySelector('[name="email"]').value,
@@ -134,10 +133,26 @@ document.addEventListener('click', async ev => {
     case 'logout': {
       await client.logout();
   
-      document.getElementById('app').innerHTML = loginHTML;
+      document.getElementById('app').innerHTML = views.loginHTML;
   
       break;
     }
+    case 'admin': {    
+        await showAdmin();
+        break;
+    }
+    case 'submitFeelings': {  
+        await submitFeelings();
+        
+        break;
+    }
+    case 'vis': {  
+        
+        await client.authenticate();
+        await showViz();
+        break;
+    }
+
     }
   });
 
@@ -145,89 +160,3 @@ document.addEventListener('click', async ev => {
 
 // START EVERYTHING USING THE LOGIN FUNCTION  
 login();
-
-
-
-
-
-
-class MyFeelings {
-    /**
-     * 
-    // anxiety: 5
-    // contentment: 10
-    // createdAt: "2019-02-03T21:00:59.347Z"
-    // fitness: false
-    // mood: "happy"
-    // productivity: 9
-    // stress: 6
-     */
-   
-    constructor(_data){
-        this.width = 160;
-        this.height = 160;
-        this.data = _data;
-        this.render = this.render.bind(this);
-    }
-
-    render(sketch){
-        // remember that the "this" keyword, won't be available do to scope 
-        const w = this.width;
-        const h = this.height;
-        const data = this.data;
-        const starWidth = 80
-
-        sketch.setup = function() {
-            sketch.createCanvas(w, h);
-            sketch.noLoop();
-        };
-
-        sketch.draw = function() {
-            if(data.fitness){
-                sketch.background( 218, 247, 166 );
-            }else{
-                sketch.background(  247, 223, 241 );
-            }
-            
-
-            sketch.push();
-            sketch.translate(sketch.width/2, sketch.height/2);
-            sketch.beginShape();
-            sketch.noStroke();
-            // anxiety
-            // angle 0
-            sketch.vertex(
-                    sketch.cos(sketch.radians(0) )*sketch.map(data.anxiety, 1, 10, 1, starWidth), 
-                    sketch.sin(sketch.radians(0) )*sketch.map(data.anxiety, 1, 10, 1, starWidth)
-                    );
-
-            // contentment
-            sketch.vertex(
-                    sketch.cos(sketch.radians(90) )*sketch.map(data.contentment, 1, 10, 1, starWidth), 
-                    sketch.sin(sketch.radians(90) )*sketch.map(data.contentment, 1, 10, 1, starWidth)
-                    );
-
-            // productivity
-            sketch.vertex(
-                    sketch.cos(sketch.radians(180))*sketch.map(data.productivity, 1, 10, 1, starWidth), 
-                    sketch.sin(sketch.radians(180))*sketch.map(data.productivity, 1, 10, 1, starWidth)
-                    );
-
-            // stress
-            sketch.vertex(
-                    sketch.cos(sketch.radians(270))*sketch.map(data.stress, 1, 10, 1, starWidth), 
-                    sketch.sin(sketch.radians(270))*sketch.map(data.stress, 1, 10, 1, starWidth)
-                    );
-            
-
-            sketch.endShape(sketch.CLOSE);
-
-            sketch.stroke(0);
-            sketch.line(-5, 0, 5, 0)
-            sketch.line(0, -5, 0, 5)
-            sketch.pop();
-
-        };
-    }
-
-}
