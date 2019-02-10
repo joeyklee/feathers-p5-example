@@ -135,7 +135,6 @@ You should see something like:
 ### Now Let's add in our first `feelings` database
 
 ```sh
-
 feathers generate service
 ```
 
@@ -443,6 +442,116 @@ Take some time to revel in the glory that you've just made a full blown web appl
 
 
 
+## Adding Authentication on the server
+
+Generating the authentication routes is as easy as:
+
+```sh
+feathers generate authentication
+```
+
+You'll be prompted to select some choices. I did the follwing:
+```sh
+? What authentication providers do you want to use? Other PassportJS strategies
+not in this list can still be configured manually. (Press <space> to select, <a>
+ to toggle all, <i> to invert selection)Username + Password (Local)
+? What is the name of the user (entity) service? users
+? What kind of service is it? Mongoose
+```
+
+You'll see in the `src/models` folder there is now a `users.model.js` file with the properties that the authentication will accept: email & password.
+
+NOTE: That feathersjs is using `jwt` aka json web tokens and your password never gets stored anywhere.
+
+## Add authentication to CRUD requests - in this case we will say that authentication must occur for all instances
+
+Navigate to your `src/services/feelings/feelings.hooks.js`. You'll bring in the authentication functionality by requiring the featherjs authetication hook and then adding it before all -- 'before.all[]' -- CRUD operations. What this means is that featherjs will ask whether or not the user is authenticated before every CREATE, READ, UPDATE, DELETE request going on. 
+
+```js
+const {authenticate} = require('@feathersjs/authentication').hooks;
+module.exports = {
+  before: {
+    all: [authenticate('jwt')],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  ...
+
+}
+```
+
+![loading page sticks due to unauthenticated user](assets/images/loading.png)
+
+Now if we try to reload our page, it should break - the loading... text will just stick -- because we won't be authenticated!
+
+Since we know that the authentication restriction is working, you might also change when authentication occurs e.g.:
+
+```js
+const {authenticate} = require('@feathersjs/authentication').hooks;
+
+module.exports = {
+  before: {
+    all: [],
+    find: [],
+    get: [],
+    create: [authenticate('jwt')],
+    update: [authenticate('jwt')],
+    patch: [authenticate('jwt')],
+    remove: [authenticate('jwt')]
+  },
+...
+}
+```
+
+
+## Add feathersjs client to your index.html 
+
+Add featherjs client library to your index.html files 
+```html
+...
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.1.4/core.min.js"></script>
+  <script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
+  <script src="index.js"></script>
+</html>
+
+```
+
+
+## Add in the rest client and authentication client to your index.js file
+
+```js
+const app = feathers();
+  
+// Connect to a different URL
+const restClient = feathers.rest('/')
+
+// Configure an AJAX library (see below) with that client 
+app.configure(restClient.fetch(window.fetch));
+
+app.configure(feathers.authentication({
+    header: 'Authorization', // the default authorization header for REST
+    prefix: '', // if set will add a prefix to the header value. for example if prefix was 'JWT' then the header would be 'Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOi...'
+    path: '/authentication', // the server-side authentication service path
+    jwtStrategy: 'jwt', // the name of the JWT authentication strategy
+    entity: 'user', // the entity you are authenticating (ie. a users)
+    service: 'users', // the service to look up the entity
+    cookie: 'feathers-jwt', // the name of the cookie to parse the JWT from when cookies are enabled server side
+    storageKey: 'feathers-jwt', // the key to store the accessToken in localstorage or AsyncStorage on React Native
+    storage: localStorage // Passing a WebStorage-compatible object to enable automatic storage on the client.
+}));
+
+// Connect to the `http://feathers-api.com/messages` service
+// const messages = app.service('messages');
+const feelings = app.service('feelings');
+```
 
 
 
