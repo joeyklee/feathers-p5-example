@@ -54,7 +54,15 @@ function handleSubmit(e){
         stress: myForm.get('stress')
     }
     // https://github.com/shiffman/itp-networked-media/wiki/GET,-POST-with-p5
-    httpPost("/feelings", payload, finished)
+    // httpPost("/feelings", payload, finished)
+    client.authenticate().then( authd => {
+        console.log(authd)
+        feelings.create(payload).then( newItem => {
+            console.log("success!")
+            finished(newItem)
+        })
+    })
+
 }
 
 // when the httpPost() function is finished, change the window location to '/'
