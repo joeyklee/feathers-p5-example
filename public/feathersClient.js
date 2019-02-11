@@ -1,8 +1,8 @@
 const client = feathers();
 
 // Connect to a different URL
-const restClient = feathers.rest('http://localhost:3030') // for dev
-// const restClient = feathers.rest('https://my-feelings-vis.herokuapp.com') // for production
+// const restClient = feathers.rest('http://localhost:3030') // for dev
+const restClient = feathers.rest('https://my-feelings-vis.herokuapp.com') // for production
 
 // Configure an AJAX library (see below) with that client 
 client.configure(restClient.fetch(window.fetch));
