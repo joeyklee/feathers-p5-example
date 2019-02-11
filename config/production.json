@@ -1,5 +1,5 @@
 {
   "host": "https://my-feelings-vis.herokuapp.com",
   "port": "PORT",
-  "mongodb":"mongodb://<dbuser>:<dbpassword>@ds331135.mlab.com:31135/heroku_x65zhjb3"
+  "mongodb": "MONGODB_URI"
 }
