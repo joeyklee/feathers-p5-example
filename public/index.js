@@ -150,7 +150,7 @@ document.addEventListener('click', async ev => {
   
       await signup(user);
       // If successful log them in
-      await login(credentials);
+      await login(user);
   
       break;
     }
