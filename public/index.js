@@ -1,10 +1,10 @@
 const views = new Views();
 
 
-function setup(){
-    noCanvas();
-    noLoop()
-}
+// function setup(){
+//     noCanvas();
+//     noLoop()
+// }
 
 
 const showLogin = function(error){
@@ -130,17 +130,25 @@ const login = async function(credentials){
       }
 }
 
+const signup = async function(credentials){
+    try {
+      // First create the user
+      await client.service('users').create(credentials, {
+        headers: { 'X-Requested-With': 'FeathersJS' }
+      });
+    
+    } catch(error){
+        showLogin(error);
+    }
+}
 
 document.addEventListener('click', async ev => {
     switch(ev.target.id) {
     case 'signup': {
       // For signup, create a new user and then log them in
-      const credentials = getCredentials();
+      const user = getCredentials();
   
-      // First create the user
-      await client.service('users').create(credentials, {
-        headers: { 'X-Requested-With': 'FeathersJS' }
-      });
+      await signup(user);
       // If successful log them in
       await login(credentials);
   
