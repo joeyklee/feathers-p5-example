@@ -21,3 +21,9 @@ client.configure(feathers.authentication({
 // Connect to the `http://feathers-api.com/messages` service
 // const messages = app.service('messages');
 const feelings = client.service('feelings');
+
+feelings.find().then(items => {
+    console.log(items);
+}).catch(err => {
+    return err
+})
