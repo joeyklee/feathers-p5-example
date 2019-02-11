@@ -3,7 +3,12 @@ class Views {
 
     this.loginHTML = `
     <main class="login container">
-        <h1 class="heading">Log in or signup</h1>
+        <section>
+            <h1>My Data Feelings Log</h1>
+            <p>A generative data visualization of my feelings submitted every day.</p>
+        </section>
+        <section>
+        <h2 class="heading">Log in or signup</h2>
         <form class="form">
             <fieldset>
               <input class="block" type="email" name="email" placeholder="email">
@@ -22,6 +27,7 @@ class Views {
             </button>
           </form>
         </div>
+        <section>
     
     </main>
     `
@@ -29,7 +35,7 @@ class Views {
     this.visHTML = `
     <main>
         <header>
-            <h1>My Data Feelings <small id="admin">⚙︎</small><small id="logout" style="font-size:12px; margin-left:20px; cursor:pointer">logout</small></h1>
+            <h1>My Data Feelings <small class="btn" id="admin">⚙︎</small><small id="logout"  class="btn" style="font-size:12px; margin-left:20px; cursor:pointer">logout</small></h1>
             <p>This is a series of daily visuals generated from my data feelings </p>
             
         </header>
@@ -43,7 +49,7 @@ class Views {
         <header>
             <h1>Data Feelings Admin Console</h1>
             <p>Use the various inputs to submit data about your mood</p>
-            <p style="text-decoration:underline" id="vis">🔙 back to viz</p>
+            <small class="btn" style="text-decoration:underline" id="vis">🔙 back to viz</small>
         </header>
         <section class="grid-container">
         
@@ -75,8 +81,14 @@ class Views {
             </fieldset>
             <fieldset>
                 <legend>fitness today?</legend>
-                <input type="radio" id="fitness-input-yes" name="fitness" value="yes"> Yes :)
-                <input type="radio" id="fitness-input-no" name="fitness" value="no" checked> No :(
+                <div>
+                    <p>Yes 😍</p>
+                    <input type="radio" id="fitness-input-yes" name="fitness" value="yes"> 
+                </div>
+                <div>
+                <p>No 😭</p>
+                <input type="radio" id="fitness-input-no" name="fitness" value="no" checked> 
+                </div>
             </fieldset>
             <input id="submit-input" type="submit" value="Submit! 🚀">
           </form>

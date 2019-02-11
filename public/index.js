@@ -5,6 +5,7 @@ function setup(){
     noCanvas();
     noLoop()
 }
+function draw(){}
 
 const showLogin = function(error){
     if(document.querySelectorAll('.login').length) {
@@ -41,6 +42,28 @@ const showAdmin = async function(){
     document.getElementById('app').innerHTML = views.adminHTML;
 
     moodForm.addEventListener('submit', submitFeelings)
+
+    // select the inputs to track if and when they change
+    const anxietyInput = document.querySelector("#anxiety-input");
+    const stressInput = document.querySelector("#stress-input");
+    const contentmentInput = document.querySelector("#contentment-input");
+    const productivityInput = document.querySelector("#productivity-input");
+
+    // create an array of those inputs to iterate through them
+    // we will set the inital state of the slider labels
+    // we will also make sure to change the slider label value on .changed()
+    const inputs = [anxietyInput, stressInput, contentmentInput, productivityInput];
+    inputs.forEach( i => {
+        // set the initial value
+        let label = document.querySelector(`#${i.id}-label`)
+        label.innerHTML = i.value
+        
+        // if it changes, then update it by adding an event listener
+        i.addEventListener('change',function(e){
+            label.innerHTML = i.value;
+        })
+    });
+
 
 }
 
