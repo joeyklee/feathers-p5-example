@@ -7,6 +7,8 @@ function setup(){
 }
 function draw(){}
 
+
+
 const showLogin = function(error){
     if(document.querySelectorAll('.login').length) {
         document.querySelector('.heading').insertAdjacentHTML('beforeend', `<p>There was an error: ${error.message}</p>`);
