@@ -5,8 +5,6 @@ function setup(){
     noCanvas();
     noLoop()
 }
-function draw(){}
-
 
 
 const showLogin = function(error){
